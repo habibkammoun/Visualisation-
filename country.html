@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPP USA</title>
+    <!-- Inclure D3.js -->
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <style>
+        body {
+            background-color: gray; /* Bordeaux */
+            color: black;
+        }
+        #chart {
+            margin-top: 20px;
+            width: 90%; /* Adjust width for the chart */
+            margin-left: auto;
+            margin-right: auto;
+            background-color: white; /* White background for the chart */
+            padding: 10px; /* Add padding to the chart area */
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        }
+        #charta svg {
+            width: 100%; /* Make the SVG cover the entire div */
+            height: 100%; /* Make the SVG cover the entire div */
+        }
+        #charta {
+            margin-top: 20px;
+            width: 90%; /* Adjust width for the chart */
+            margin-left: auto;
+            margin-right: auto;
+            background-color: white; /* White background for the chart */
+            padding: 10px; /* Add padding to the chart area */
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        }
+        #chart svg {
+            width: 100%; /* Make the SVG cover the entire div */
+            height: 100%; /* Make the SVG cover the entire div */
+        }
+        #ktiba
+        {
+            margin-top: 100px;
+        }
+        #pieChart {
+            width: 400px;
+            height: 400px;
+            margin-left: 530px;
+            margin-top: 40px;     
+            background-color: white; /* White background for the chart */
+   }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; font-size: 24px; margin-bottom: 20px;">State annual personal income summary distrubution
+    </h1>
+
+    <!-- Ajouter un div pour afficher le graphique -->
+    <div id="chart"></div>
+
+    <h1 style="text-align: center; font-size: 24px; margin-bottom: 20px;">Substance Abuse Rehabilitation Program distrubution</h1>
+
+    <div id="charta"></div>
+
+    <h1 id="ktiba" style="text-align: center; font-size: 24px; margin-bottom: 20px;">Country Map</h1>
+    <div >
+        <link rel="stylesheet" href="css/style.css">
+		<script src="https://d3js.org/topojson.v1.min.js"></script>
+		<script src="https://d3js.org/queue.v1.min.js"></script>
+        <script src="js/countyMap.js"></script></div>
+
+        <h1 id="ktiba1" style="text-align: center; font-size: 24px; margin-bottom: 20px;">Distribution of NoteRef </h1>
+
+        <div id="pieChart"></div>
+
+    <script>
+        function get() {
+            const proxyUrl = 'https://apps.bea.gov/api/data?&UserID=8928899E-CE4B-4EBE-834D-D250566A482F&method=GetData&datasetname=Regional&TableName=SAINC1&GeoFIPS=STATE&LineCode=3&Year=2013';
+            
+            fetch(proxyUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la récupération des données depuis l\'API');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Appel de la fonction pour créer le graphique avec les données récupérées
+                    console.log(data.BEAAPI.Results.Data)
+                    createHistogram(data.BEAAPI.Results.Data)
+                    createPieChart(data.BEAAPI.Results.Data)
+                })
+                .catch(error => {
+                    console.error("Erreur lors de la récupération des données :", error);
+                });
+        }
+        function geta() {
+            const proxyUrl = 'https://apps.bea.gov/api/data?&UserID=8928899E-CE4B-4EBE-834D-D250566A482F&method=GetData&datasetname=Regional&TableName=SARPP&GeoFIPS=STATE&LineCode=3&Year=2013';
+            
+            fetch(proxyUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la récupération des données depuis l\'API');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Appel de la fonction pour créer le graphique avec les données récupérées
+                    console.log(data.BEAAPI.Results.Data)
+                    createHistogram1(data.BEAAPI.Results.Data)
+                })
+                .catch(error => {
+                    console.error("Erreur lors de la récupération des données :", error);
+                });
+        }
+        function createHistogram1(data) {
+            // Définir les dimensions du canevas
+            var margin = {top: 20, right: 30, bottom: 100, left: 60}, // Increased bottom margin
+                width = 1300 - margin.left - margin.right,
+                height = 400 - margin.top - margin.bottom;
+
+            // Sélectionner le div pour afficher le graphique
+            var chartDiv = d3.select("#charta");
+
+            // Ajouter le canevas SVG à la page
+            var svg = chartDiv.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            // Créer l'échelle pour l'axe des x
+            var x = d3.scale.ordinal()
+                .domain(data.map(function(d) { return d.GeoName; }))
+                .rangeRoundBands([0, width], 0.1);
+
+            // Ajouter l'axe des x à l'échelle
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.svg.axis().scale(x).orient("bottom"))
+                .selectAll("text")
+                    .attr("transform", "rotate(-45)")
+                    .style("text-anchor", "end")
+                    .attr("dy", "1em") // Adjust spacing here;
+
+            // Créer l'échelle pour l'axe des y
+            var y = d3.scale.linear()
+                .domain([0, d3.max(data, function(d) { return parseInt(d.DataValue); })])
+                .range([height, 0]);
+
+            // Ajouter l'axe des y à l'échelle
+            svg.append("g")
+                .call(d3.svg.axis().scale(y).orient("left"));
+
+            // Ajouter les barres à l'histogramme
+            svg.selectAll(".bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", function(d) { return x(d.GeoName); })
+                .attr("width", x.rangeBand())
+                .attr("y", function(d) { return y(parseInt(d.DataValue)); })
+                .attr("height", function(d) { return height - y(parseInt(d.DataValue)); });
+        }
+
+        function createHistogram(data) {
+            // Définir les dimensions du canevas
+            var margin = {top: 20, right: 30, bottom: 100, left: 60}, // Increased bottom margin
+                width = 1300 - margin.left - margin.right,
+                height = 400 - margin.top - margin.bottom;
+
+            // Sélectionner le div pour afficher le graphique
+            var chartDiv = d3.select("#chart");
+
+            // Ajouter le canevas SVG à la page
+            var svg = chartDiv.append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            // Créer l'échelle pour l'axe des x
+            var x = d3.scale.ordinal()
+                .domain(data.map(function(d) { return d.GeoName; }))
+                .rangeRoundBands([0, width], 0.1);
+
+            // Ajouter l'axe des x à l'échelle
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.svg.axis().scale(x).orient("bottom"))
+                .selectAll("text")
+                    .attr("transform", "rotate(-45)")
+                    .style("text-anchor", "end")
+                    .attr("dy", "1em") // Adjust spacing here;
+
+            // Créer l'échelle pour l'axe des y
+            var y = d3.scale.linear()
+                .domain([0, d3.max(data, function(d) { return parseInt(d.DataValue); })])
+                .range([height, 0]);
+
+            // Ajouter l'axe des y à l'échelle
+            svg.append("g")
+                .call(d3.svg.axis().scale(y).orient("left"));
+
+            // Ajouter les barres à l'histogramme
+            svg.selectAll(".bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", function(d) { return x(d.GeoName); })
+                .attr("width", x.rangeBand())
+                .attr("y", function(d) { return y(parseInt(d.DataValue)); })
+                .attr("height", function(d) { return height - y(parseInt(d.DataValue)); });
+        }
+        
+        function createPieChart(data) {
+            // Convertir les données en un tableau de valeurs
+            const noteValues = data.map(entry => entry.NoteRef);
+
+            // Compter le nombre d'occurrences de chaque valeur
+            const counts = {};
+            noteValues.forEach(value => {
+                counts[value] = (counts[value] || 0) + 1;
+            });
+
+            // Préparer les données pour la pie chart
+            const pieData = [];
+            for (const [key, value] of Object.entries(counts)) {
+                pieData.push({ value: value, note: key });
+            }
+
+            // Définir les dimensions de la pie chart
+            const width = 400;
+            const height = 400;
+            const radius = Math.min(width, height) / 2;
+
+            // Créer une échelle de couleurs
+            const color = d3.scale.category10();
+
+            // Créer l'arc pour chaque section
+            const arc = d3.svg.arc()
+                .outerRadius(radius - 10)
+                .innerRadius(0);
+
+            // Créer la fonction pour dessiner les secteurs
+            const pie = d3.layout.pie()
+                .sort(null)
+                .value(d => d.value);
+
+            // Créer le canevas SVG
+            const svg = d3.select("#pieChart").append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+            // Ajouter les secteurs à la pie chart
+            const g = svg.selectAll(".arc")
+                .data(pie(pieData))
+                .enter().append("g")
+                .attr("class", "arc");
+
+            // Dessiner les secteurs
+            g.append("path")
+                .attr("d", arc)
+                .style("fill", d => color(d.data.note));
+
+            // Ajouter les étiquettes
+            g.append("text")
+                .attr("transform", d => "translate(" + arc.centroid(d) + ")")
+                .attr("dy", ".35em")
+                .style("text-anchor", "middle")
+                .text(d => d.data.note);
+        }
+        // Appeler la fonct ion pour récupérer les données et créer le graphique
+        get();
+        geta()
+    </script>
+</body>
+</html>
