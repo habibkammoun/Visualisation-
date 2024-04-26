@@ -37,8 +37,9 @@ Voici quelques captures d'écran illustrant les fonctionnalités de l'applicatio
   ![Histogramme de SARPP](images/2.png).
 
 - **Carte** : La carte de distribution des dollars est une représentation visuelle interactive qui met en évidence la répartition géographique des dollars dans l'économie des États-Unis. Cette carte utilise des données provenant de l'API du Bureau of Economic Analysis (BEA) pour identifier les régions et les États qui contribuent le plus au Revenu Personnel (RPP) et au Produit Intérieur Brut (PIB) de l'Industrie Non Agricole (SAINC) et Agricole (SARPP).
-  ![Carte](images/3.png).
-  ![Carte](images/Capture d'écran 2024-04-26 140508.png). 
+![Carte](images/3.png)
+![Carte](images/Capture%20d'écran%202024-04-26%20140508.png)
+
 
 
 
