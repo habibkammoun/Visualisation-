@@ -58,3 +58,4 @@ En plus du Résumé Météorologique, cette feuille récapitulative comprend plu
 3. **Histogramme SARPP :** Un histogramme présentant la distribution des valeurs SARPP sur l’axe des abscisses et leur fréquence sur l’axe des ordonnées, avec des barres de couleur teal.
 
 4. **Camembert SAINC :** Un diagramme circulaire illustrant la distribution du Produit Intérieur Brut de l’Industrie Non Agricole (SAINC) entre différents États américains, avec des segments colorés et étiquetés par pourcentage.
+## Deomnstartion 
